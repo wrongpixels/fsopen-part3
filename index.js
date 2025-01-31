@@ -33,6 +33,12 @@ app.get("/", (req, res) => {
 app.get("/api", (req, res) => {
     res.json({"message": "Phonebook API"});
 })
+
+app.get("/info", (req, res) => {
+    const count = persons?persons.length:0;
+    const time = new Date();
+    res.send(`Phonebook has info for ${count} people<p>${time}</p>`)
+})
 app.get("/api/persons", (req, res) => {
     if (persons && persons.length > 0)
     {
