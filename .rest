@@ -10,3 +10,19 @@ GET {{url}}/persons/5
 DELETE {{url}}/persons/4
 ### DELETE MISSING
 DELETE {{url}}/persons/5
+### ADD VALID PERSON
+POST {{url}}/persons
+Content-Type: application/json
+
+{
+  "name": "Peter",
+  "number": "2433343443"
+}
+### ADD INVALID PERSON
+POST {{url}}/persons
+Content-Type: application/json
+
+{
+  "name": "",
+  "number": "2433343443"
+}

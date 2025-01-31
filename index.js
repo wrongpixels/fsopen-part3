@@ -23,7 +23,25 @@ let persons = [
         "number": "39-23-6423122"
     }
 ]
-const fetchFromID = (id) => persons?persons.find(p => p.id === id):null;
+const getPersonFromID = (id) => persons?persons.find(p => p.id === id):null;
+const getPersonFromName = (name) => persons?persons.find(p => p.name === name):null;
+
+const getRandomNumber = () => {
+    let randomString = "";
+    const fixedMin = Math.ceil(0);
+    const fixedMax = Math.floor(99999);
+    randomString = String(Math.floor(Math.random()*(fixedMax-fixedMin) + 1 + fixedMin));
+    return randomString;
+}
+const getNewRandomID = () => {
+    const newID = getRandomNumber();
+    const existingPerson = getPersonFromID(newID);
+    if (existingPerson)
+    {
+        return getNewRandomID();
+    }
+    return String(newID);
+}
 
 const app = express();
 app.use(express.json());
@@ -41,6 +59,24 @@ app.get("/info", (req, res) => {
     const time = new Date();
     res.send(`Phonebook has info for ${count} people<p>${time}</p>`)
 })
+app.post("/api/persons", (req, res) => {
+    const body = req.body;
+    if (!body || !body.name || !body.number)
+    {
+        return res.status(400).json({"Error": "New person is missing name or number"});
+    }
+    if (getPersonFromName(body.name))
+    {
+        return res.status(400).json({"Error": `'${body.name}' already exists. Names must be unique.`})
+    }
+    const newPerson = {
+        "id": getNewRandomID(),
+        "name": body.name,
+        "number": body.number
+    }
+    persons = persons.concat(newPerson);
+    res.json(newPerson);
+})
 app.get("/api/persons", (req, res) => {
     if (persons && persons.length > 0)
     {
@@ -53,7 +89,7 @@ app.get("/api/persons", (req, res) => {
 })
 app.get("/api/persons/:id", (req, res) => {
     const id = req.params.id;
-    const person = fetchFromID(id);
+    const person = getPersonFromID(id);
     if (!person)
     {
         return res.status(404).json({"Error": `Person ${id} was not found`})
@@ -62,7 +98,7 @@ app.get("/api/persons/:id", (req, res) => {
 })
 app.delete("/api/persons/:id", (req, res) => {
     const id = req.params.id;
-    const person = fetchFromID(id);
+    const person = getPersonFromID(id);
     if (person)
     {
         persons = persons.filter(p => p.id !== id);
@@ -70,7 +106,7 @@ app.delete("/api/persons/:id", (req, res) => {
     }
     else
     {
-        res.status(404).json({"Error Deleting": `Person ${id} was not found`});
+        res.status(404).json({"Error": `Person ${id} was not found`});
     }
 })
 
