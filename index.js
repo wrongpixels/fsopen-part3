@@ -1,7 +1,7 @@
 const express = require ("express");
 
 const PORT = 3001;
-const persons = [
+let persons = [
     {
         "id": "1",
         "name": "Arto Hellas",
@@ -23,6 +23,8 @@ const persons = [
         "number": "39-23-6423122"
     }
 ]
+const fetchFromID = (id) => persons?persons.find(p => p.id === id):null;
+
 const app = express();
 app.use(express.json());
 
@@ -46,19 +48,32 @@ app.get("/api/persons", (req, res) => {
     }
     else
     {
-        res.status(404).json({"Error": "No people found."})
+        res.status(404).json({"Error": "No people were found."})
     }
-
 })
 app.get("/api/persons/:id", (req, res) => {
     const id = req.params.id;
-    const person = persons.find(p => p.id === id);
+    const person = fetchFromID(id);
     if (!person)
     {
-        return res.status(404).json({"Error": `Person ${id} not found`})
+        return res.status(404).json({"Error": `Person ${id} was not found`})
     }
     return res.json(person);
 })
+app.delete("/api/persons/:id", (req, res) => {
+    const id = req.params.id;
+    const person = fetchFromID(id);
+    if (person)
+    {
+        persons = persons.filter(p => p.id !== id);
+        res.status(204).end();
+    }
+    else
+    {
+        res.status(404).json({"Error Deleting": `Person ${id} was not found`});
+    }
+})
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
