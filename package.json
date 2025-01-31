@@ -1,0 +1,27 @@
+{
+  "name": "phonebook-backend",
+  "version": "0.0.1",
+  "description": "As recommended, a dedicated repository for the Part 3 exercises",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wrongpixels/fsopen-part3.git"
+  },
+  "author": "Alvaro Moreno",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wrongpixels/fsopen-part3/issues"
+  },
+  "homepage": "https://github.com/wrongpixels/fsopen-part3#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
