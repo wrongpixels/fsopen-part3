@@ -5,7 +5,7 @@ morgan.token('body', (req) => req.body ? JSON.stringify(req.body) : "")
 const morganFilter = (':method :url :status :res[content-length] - :response-time ms :body')
 
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 let persons = [
     {
         "id": "1",

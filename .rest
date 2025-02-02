@@ -1,4 +1,4 @@
-@url = http://localhost:3001/api
+@url = https://phonebook-backend-autumn-glitter-5763.fly.dev/api/
 
 ### JUST GET ALL
 GET {{url}}/persons

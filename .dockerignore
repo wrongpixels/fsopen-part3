@@ -7,11 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+/phonebook-frontend
+deploy-fly.bat
+fly.toml
+
 node_modules
 dist
 dist-ssr
 *.local
-deploy-fly.bat
 
 # Editor directories and files
 .vscode/*
