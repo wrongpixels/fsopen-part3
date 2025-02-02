@@ -1,6 +1,6 @@
 # Full Stack Open - Part 3 Exercises
 
-As recommended, a dedicated repository for the Part 3 exercises
+As recommended, this is a dedicated repository for the Part 3 exercises
 
 ## Phonebook Application
 ### Backend API
