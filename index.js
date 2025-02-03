@@ -1,5 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
+require("dotenv").config();
+const Person = require("./models/person")
 
 morgan.token('body', (req) => req.body ? JSON.stringify(req.body) : "")
 const morganFilter = (':method :url :status :res[content-length] - :response-time ms :body')
@@ -86,20 +88,21 @@ app.post("/api/persons", (req, res) => {
     persons = persons.concat(newPerson);
     res.json(newPerson);
 })
-app.get("/api/persons", (req, res) => {
-    if (persons && persons.length > 0) {
+app.get("/api/persons", (req, res) =>
+    Person.find({}).then(persons => {
         res.json(persons);
-    } else {
-        res.status(404).json({"Error": "No people were found."})
-    }
-})
+        console.log("Gathered",persons.length)
+    }).catch(() => res.json({"Error":"Couldn't gather persons"}))
+)
 app.get("/api/persons/:id", (req, res) => {
     const id = req.params.id;
-    const person = getPersonFromID(id);
-    if (!person) {
-        return res.status(404).json({"Error": `Person ${id} was not found`})
-    }
-    return res.json(person);
+    Person.findById(id).then(person => {
+        if (!person)
+        {
+            return res.status(404).json({"Error":`Person ${id} was not found`})
+        }
+        res.json(person);
+    }).catch(error => res.status(404).json({"Error":"Couldn't complete operation"}))
 })
 app.delete("/api/persons/:id", (req, res) => {
     const id = req.params.id;
