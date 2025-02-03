@@ -31,28 +31,6 @@ let persons = [
     }
 ]
 const getPersonFromID = (id) => persons ? persons.find(p => p.id === id) : null;
-const getPersonFromName = (name) => persons ? persons.find(p => p.name === name) : null;
-const getRandomNumber = () => {
-    let randomString = "";
-    const fixedMin = Math.ceil(0);
-    const fixedMax = Math.floor(99999);
-    randomString = String(Math.floor(Math.random() * (fixedMax - fixedMin) + 1 + fixedMin));
-    return randomString;
-}
-const getNewRandomID = () => {
-    const newID = getRandomNumber();
-    const existingPerson = getPersonFromID(newID);
-    if (existingPerson) {
-        return getNewRandomID();
-    }
-    return String(newID);
-}
-const getRequestData = (req) => {
-    if (!req.body || req.body.length === 0) {
-        return "";
-    }
-    return JSON.stringify(req.body);
-}
 
 const app = express();
 app.use(express.json());
@@ -68,9 +46,9 @@ app.get("/api", (req, res) => {
 })
 
 app.get("/info", (req, res) => {
-    const count = persons ? persons.length : 0;
-    const time = new Date();
-    res.send(`Phonebook has info for ${count} people<p>${time}</p>`)
+    Person.find({}).then(persons => {
+        res.send(`Phonebook has info for ${persons.length} people<p>${new Date()}</p>`)
+    })
 })
 app.post("/api/persons", (req, res) => {
     const body = req.body;
@@ -81,13 +59,18 @@ app.post("/api/persons", (req, res) => {
     if (getPersonFromName(body.name)) {
         return res.status(400).json({"Error": `'${body.name}' already exists. Names must be unique.`})
     }*/
-    const newPerson = new Person({})
-
+    const newPerson = new Person({
+        name: body.name,
+        number: body.number})
+    newPerson.save()
+        .then(savedPerson => {
+            res.json(savedPerson);
+        })
+        .catch(error => res.status(500).json({"Error": "Person couldn't be created"}));
 })
 app.get("/api/persons", (req, res) =>
     Person.find({}).then(persons => {
         res.json(persons);
-        console.log("Gathered",persons.length)
     }).catch(() => res.json({"Error":"Couldn't gather persons"}))
 )
 app.get("/api/persons/:id", (req, res) => {
@@ -98,7 +81,7 @@ app.get("/api/persons/:id", (req, res) => {
             return res.status(404).json({"Error":`Person ${id} was not found`})
         }
         res.json(person);
-    }).catch(error => res.status(404).json({"Error":"Couldn't complete operation"}))
+    }).catch(error => res.status(500).json({"Error":"Couldn't complete operation"}))
 })
 app.delete("/api/persons/:id", (req, res) => {
     const id = req.params.id;
