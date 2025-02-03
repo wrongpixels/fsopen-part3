@@ -77,16 +77,12 @@ app.post("/api/persons", (req, res) => {
     if (!body || !body.name || !body.number) {
         return res.status(400).json({"Error": "New person is missing name or number"});
     }
+    /*
     if (getPersonFromName(body.name)) {
         return res.status(400).json({"Error": `'${body.name}' already exists. Names must be unique.`})
-    }
-    const newPerson = {
-        "id": getNewRandomID(),
-        "name": body.name,
-        "number": body.number
-    }
-    persons = persons.concat(newPerson);
-    res.json(newPerson);
+    }*/
+    const newPerson = new Person({})
+
 })
 app.get("/api/persons", (req, res) =>
     Person.find({}).then(persons => {

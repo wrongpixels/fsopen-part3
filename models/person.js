@@ -16,4 +16,4 @@ personSchema.set('toJSON', {
         delete returned.__v;
     }
 })
-module.exports = new mongoose.model("Person", personSchema);
+module.exports = mongoose.model("Person", personSchema);

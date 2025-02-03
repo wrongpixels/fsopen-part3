@@ -10,6 +10,7 @@ lerna-debug.log*
 /phonebook-frontend
 deploy-fly.bat
 fly.toml
+.env
 
 node_modules
 *.local
