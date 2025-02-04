@@ -31,10 +31,18 @@ function App() {
         setTimeout(() => setNotification({message: '', isError: false}), 5000);
     }
     const runAddError = (name) => {
-        runNotification(`Error: '${name}' couldn't be added (server error)`, true);
+        const message = `Error: '${name}' couldn't be added (server error)`;
+        runNotification(message, true);
     }
-    const runAccessError = (name) => {
-        runNotification(`Error: '${name}' was already removed from the server`, true);
+    const runAccessError = (person) => {
+        const message = `Error: '${person.name}' was already removed from the server`;
+        runNotification(message);
+        removeByID(person.id);
+    }
+    const runValidationError = (error) => {
+
+        const message = error?.response?.data?.message || `Error: Server Error`;
+        runNotification(message, true);
     }
 
     const resetContactForm = () => {
@@ -95,10 +103,21 @@ function App() {
         const newPerson = {name: newName, number: newNumber};
         phonebookservices.addNumber(newPerson).then(
             result => {
-                setPersons(persons.concat(result))
-                runNotification(`Contact '${newName}' was added!`);
-                resetContactForm();
-            }).catch(() => runAddError(newName))
+                if (result) {
+                    setPersons(persons.concat(result))
+                    runNotification(`Contact '${newName}' was added!`);
+                    resetContactForm();
+                }
+            }).catch(error => {
+                if (error?.response?.data?.name === "ValidationError")
+                {
+                    runValidationError(error);
+                }
+                else {
+                    runAddError(newName)
+                }
+            }
+        )
     }
     const handleEditPerson = (person) => {
         phonebookservices.editContact(person).then(
@@ -107,10 +126,17 @@ function App() {
                 runNotification(`Contact '${person.name}' was updated!`);
                 resetContactForm();
             }
-        ).catch(() => {
-            runAccessError(person.name);
-            removeByID(person.id);
-        })
+        ).catch(error => {
+                if (error?.response?.data?.name === "ValidationError")
+                {
+                    runValidationError(error);
+                }
+                else
+                {
+                    runAccessError(person);
+                }
+            }
+        )
     }
 
     const handleDeletePerson = (id) => {
@@ -149,8 +175,6 @@ function App() {
         </>
     )
 }
-
-
 
 
 export default App 

@@ -45,6 +45,6 @@ PUT {{url}}/persons/67a2318d89436e4132b5acce
 Content-Type: application/json
 
 {
-  "name": "Paco Perez",
+  "name": "Pa",
   "number": "2433343443"
 }

@@ -82,7 +82,7 @@ app.put("/api/persons/:id", (req, res, next) => {
     if (!body || !body.name || !body.number) {
         return res.status(400).json({"Error": "New person is missing name or number"});
     }
-    Person.findByIdAndUpdate(id, body, {new: true})
+    Person.findByIdAndUpdate(id, body, {new: true, runValidators: true, context: 'query'})
         .then(updatedPerson => handleResponse(res, updatedPerson))
         .catch(error => next(error))
     })
@@ -94,6 +94,10 @@ const errorHandler = (error, req, res, next) =>{
     if (error.name === "ReferenceError")
     {
         return res.status(404).json({"Error":"Person doesn't exist"});
+    }
+    if (error.name === "ValidationError")
+    {
+        return res.status(400).json(error);
     }
     const status = error.status?error.status:500;
     if (error?.json)
