@@ -6,32 +6,18 @@ const Person = require("./models/person")
 morgan.token('body', (req) => req.body ? JSON.stringify(req.body) : "")
 const morganFilter = (':method :url :status :res[content-length] - :response-time ms :body')
 
-
 const PORT = process.env.PORT || 3001;
-let persons = [
-    {
-        "id": "1",
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": "2",
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": "3",
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": "4",
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
+const handleResponse = (resp, result, status = -1) =>{
+    if (!result)
+    {m
+        return resp.status(404).json({"Error": "Person couldn't be found."});
     }
-]
-const getPersonFromID = (id) => persons ? persons.find(p => p.id === id) : null;
-
+    if (status !== -1)
+    {
+        return resp.status(status).end();
+    }
+    return resp.json(result);
+}
 const app = express();
 app.use(express.json());
 app.use(morgan(morganFilter));
@@ -45,12 +31,12 @@ app.get("/api", (req, res) => {
     res.json({"message": "Phonebook API"});
 })
 
-app.get("/info", (req, res) => {
+app.get("/info", (req, res, next) => {
     Person.find({}).then(persons => {
         res.send(`Phonebook has info for ${persons.length} people<p>${new Date()}</p>`)
-    })
+    }).catch(error => next(error))
 })
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
     const body = req.body;
     if (!body || !body.name || !body.number) {
         return res.status(400).json({"Error": "New person is missing name or number"});
@@ -66,32 +52,49 @@ app.post("/api/persons", (req, res) => {
         .then(savedPerson => {
             res.json(savedPerson);
         })
-        .catch(error => res.status(500).json({"Error": "Person couldn't be created"}));
+        .catch(error => next(error));
 })
-app.get("/api/persons", (req, res) =>
+app.get("/api/persons", (req, res, next) =>
     Person.find({}).then(persons => {
         res.json(persons);
-    }).catch(() => res.json({"Error":"Couldn't gather persons"}))
+    }).catch(error => next(error))
 )
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
     const id = req.params.id;
-    Person.findById(id).then(person => {
-        if (!person)
-        {
-            return res.status(404).json({"Error":`Person ${id} was not found`})
-        }
-        res.json(person);
-    }).catch(error => res.status(500).json({"Error":"Couldn't complete operation"}))
+    Person.findById(id).then(person => handleResponse(res, person)
+    ).catch(error => next(error))
 })
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
     const id = req.params.id;
-    const person = getPersonFromID(id);
-    if (person) {
-        persons = persons.filter(p => p.id !== id);
-        res.status(204).end();
-    } else {
-        res.status(404).json({"Error": `Person ${id} was not found`});
+    Person.findByIdAndDelete(id).then(person => handleResponse(res, person, 204)).catch(error => next(error))
+})
+const errorHandler = (error, req, res, next) =>{
+    if (error.name === "CastError")
+    {
+        return res.status(400).json({"Error":"Wrong ID format"});
     }
-})
+    if (error.name === "ReferenceError")
+    {
+        return res.status(404).json({"Error":"Person doesn't exist"});
+    }
+    const status = error.status?error.status:500;
+    if (error?.json)
+    {
+        return res.status(status).json(error.json);
+    }
+    if (error?.name)
+    {
+        return res.status(status).json({"Error":`${error.name}`});
+    }
+    next(error);
+}
+const badRequestHandler = (req, res) =>
+{
+    res.status(404).json({"Error 404": "Unknown endpoint"});
+}
+
+app.use(badRequestHandler);
+app.use(errorHandler);
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
