@@ -9,7 +9,7 @@ const morganFilter = (':method :url :status :res[content-length] - :response-tim
 const PORT = process.env.PORT || 3001;
 const handleResponse = (resp, result, status = -1) =>{
     if (!result)
-    {m
+    {
         return resp.status(404).json({"Error": "Person couldn't be found."});
     }
     if (status !== -1)
@@ -41,14 +41,18 @@ app.post("/api/persons", (req, res, next) => {
     if (!body || !body.name || !body.number) {
         return res.status(400).json({"Error": "New person is missing name or number"});
     }
-    /*
-    if (getPersonFromName(body.name)) {
-        return res.status(400).json({"Error": `'${body.name}' already exists. Names must be unique.`})
-    }*/
-    const newPerson = new Person({
-        name: body.name,
-        number: body.number})
-    newPerson.save()
+    Person.findOne({"name": body.name})
+        .then(result => {
+            if (result)
+            {
+               res.status(400).json({"Error": `Names must be unique.`});
+                return;
+            }
+            const newPerson = new Person({
+                name: body.name,
+                number: body.number})
+           return newPerson.save()
+        })
         .then(savedPerson => {
             res.json(savedPerson);
         })
@@ -68,6 +72,20 @@ app.delete("/api/persons/:id", (req, res, next) => {
     const id = req.params.id;
     Person.findByIdAndDelete(id).then(person => handleResponse(res, person, 204)).catch(error => next(error))
 })
+app.put("/api/persons/:id", (req, res, next) => {
+    const id = req.params.id;
+    const body = req.body;
+    if (!body)
+    {
+        return res.status(400).json({"Error":"Received no data"});
+    }
+    if (!body || !body.name || !body.number) {
+        return res.status(400).json({"Error": "New person is missing name or number"});
+    }
+    Person.findByIdAndUpdate(id, body, {new: true})
+        .then(updatedPerson => handleResponse(res, updatedPerson))
+        .catch(error => next(error))
+    })
 const errorHandler = (error, req, res, next) =>{
     if (error.name === "CastError")
     {

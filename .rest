@@ -1,25 +1,35 @@
 //@url = https://phonebook-backend-autumn-glitter-5763.fly.dev/api/
 @url = http://localhost:3001/api/
+@url2 = http://localhost:3001/
 
-
+### GET INFO
+GET {{url2}}/info
 ### JUST GET ALL
 GET {{url}}/persons
 ### INVALID URL
 GET {{url}}/personss
 ### GET EXISITNG
-GET {{url}}/persons/65bf1234567890abcdef1234
+GET {{url}}/persons/67a2318d89436e4132b5acce
 ### GET MISSING
 GET {{url}}/persons/5
 ### DELETE EXISTING
 DELETE {{url}}/persons/4
 ### DELETE MISSING
 DELETE {{url}}/persons/5
-### ADD VALID PERSON
+### ADD EXISTING PERSON
 POST {{url}}/persons
 Content-Type: application/json
 
 {
   "name": "Peter",
+  "number": "2433343443"
+}
+### ADD NEW PERSON
+POST {{url}}/persons
+Content-Type: application/json
+
+{
+  "name": "Peterelel",
   "number": "2433343443"
 }
 ### ADD INVALID PERSON
@@ -28,5 +38,13 @@ Content-Type: application/json
 
 {
   "name": "",
+  "number": "2433343443"
+}
+### EDIT EXISTING
+PUT {{url}}/persons/67a2318d89436e4132b5acce
+Content-Type: application/json
+
+{
+  "name": "Paco Perez",
   "number": "2433343443"
 }
