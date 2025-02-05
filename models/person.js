@@ -8,13 +8,13 @@ mongoose.connect(url).then(()=> console.log("Connected to MongoDB")).catch(error
 const personSchema = new mongoose.Schema({
     name: {
         type: String,
-        minLength: 3,
+        minLength: [3, "The name must be at least 3 characters long"],
         required: true
     },
     number: {
         type: String,
         required: true,
-        minLength: 8,
+        minLength: [8, "The phone number must be at least 8 characters long"],
         validate: {
             validator: (v) => {
                 const parts = v.split("-");
@@ -30,9 +30,10 @@ const personSchema = new mongoose.Schema({
                 {
                     return false;
                 }
-                return !isNaN(Number(parts[0])) && !isNaN(Number(parts[1]));
+                return !isNaN(Number(parts[0]))  && !isNaN(Number(parts[1]));
             },
-            message: "Please, only use numbers and separate them with a '-' (eg: XX-XXXXXX)"
+            message:"Please, only use numbers separated with a single '-' (Format: XX-XXXXXX)"
+
         }
     }
 })

@@ -35,16 +35,18 @@ function App() {
         runNotification(message, true);
     }
     const runAccessError = (person) => {
-        const message = `Error: '${person.name}' was already removed from the server`;
+        const message = `Error: Person was already removed from the server`;
         runNotification(message);
         removeByID(person.id);
     }
     const runValidationError = (error) => {
-
-        const message = error?.response?.data?.message || `Error: Server Error`;
-        runNotification(message, true);
-    }
-
+        if (error?.response?.data && error.response.data.Error) {
+            const errorMessages = error.response.data.Error;
+            runNotification(`Error: ${errorMessages}`, true);
+        } else {
+            runNotification(`Error: Server Error`, true);
+        }
+    };
     const resetContactForm = () => {
         setNewNumber('');
         setNewName('');

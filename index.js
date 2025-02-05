@@ -97,7 +97,7 @@ const errorHandler = (error, req, res, next) =>{
     }
     if (error.name === "ValidationError")
     {
-        return res.status(400).json(error);
+        return res.status(400).json({"Error": getErrorMessages(error), "name": "ValidationError"});
     }
     const status = error.status?error.status:500;
     if (error?.json)
@@ -110,6 +110,16 @@ const errorHandler = (error, req, res, next) =>{
     }
     next(error);
 }
+const getErrorMessages = (error) => {
+    let message = "";
+    if (error.errors) {
+        Object.values(error.errors).forEach(errorDetail => {
+            message += `${errorDetail.message}. `;
+        });
+    }
+    return message.trim();
+};
+
 const badRequestHandler = (req, res) =>
 {
     res.status(404).json({"Error 404": "Unknown endpoint"});
