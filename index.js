@@ -1,5 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 require('dotenv').config()
 const Person = require('./models/person')
 
@@ -19,6 +20,7 @@ const handleResponse = (resp, result, status = -1) => {
   return resp.json(result)
 }
 const app = express()
+app.use(cors())
 app.use(express.json())
 app.use(morgan(morganFilter))
 app.use(express.static('dist'))
