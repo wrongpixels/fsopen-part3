@@ -19,6 +19,7 @@ const handleResponse = (resp, result, status = -1) => {
   }
   return resp.json(result)
 }
+
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -56,7 +57,7 @@ app.post('/api/persons', (req, res, next) => {
       return newPerson.save()
     })
     .then(savedPerson => {
-      res.json(savedPerson)
+      res.status(201).json(savedPerson)
     })
     .catch(error => next(error))
 })
